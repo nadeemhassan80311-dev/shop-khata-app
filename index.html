@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ur">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Karana Shop Khata App</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <header class="app-header">
+        <h1>🛒 Karana Shop – Khata App</h1>
+        <div id="totalDueBox" class="total-due-box">
+            Total Udhaar: <span id="totalDueAmount">0</span> Rs
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ================= ADD CUSTOMER ================= -->
+        <section class="card">
+            <h2>➕ Naya Customer Add Karein</h2>
+            <form id="customerForm" class="grid-form">
+                <input type="text" id="custName" placeholder="Customer ka Naam" required />
+                <input type="text" id="custPhone" placeholder="Phone Number" />
+                <input type="text" id="custAddress" placeholder="Address (optional)" />
+                <button type="submit">Save Customer</button>
+            </form>
+        </section>
+
+        <!-- ================= CUSTOMER LIST ================= -->
+        <section class="card">
+            <div class="section-head">
+                <h2>👥 Customers</h2>
+                <input type="text" id="searchCustomer" placeholder="🔍 Naam ya Phone se search karein" />
+            </div>
+            <div id="customerList" class="customer-list">
+                <!-- customers yahan JS se load honge -->
+            </div>
+        </section>
+
+        <!-- ================= CUSTOMER DETAIL / KHATA ================= -->
+        <section class="card hidden" id="khataSection">
+            <div class="section-head">
+                <h2 id="khataCustomerName">Khata</h2>
+                <button id="backBtn" class="secondary-btn">⬅ Wapas List</button>
+            </div>
+
+            <div class="khata-summary">
+                <div>Total Udhaar (Liya): <span id="sumDebit">0</span> Rs</div>
+                <div>Total Wapas (Diya): <span id="sumCredit">0</span> Rs</div>
+                <div class="balance">Baqaya Amount: <span id="sumBalance">0</span> Rs</div>
+            </div>
+
+            <!-- Add item / transaction -->
+            <form id="transactionForm" class="grid-form">
+                <select id="transType">
+                    <option value="debit">Udhaar Diya (Item / Saman)</option>
+                    <option value="credit">Payment Wasool Hui</option>
+                </select>
+                <input type="text" id="itemName" placeholder="Item ka Naam (e.g. Chawal, Atta)" />
+                <input type="number" id="itemQty" placeholder="Quantity" value="1" min="0" step="0.01" />
+                <input type="number" id="itemPrice" placeholder="Price (per unit / total)" required min="0"
+                    step="0.01" />
+                <input type="text" id="itemNote" placeholder="Note (optional)" />
+                <button type="submit">Add Entry</button>
+            </form>
+
+            <h3>📜 Transaction History</h3>
+            <table class="txn-table">
+                <thead>
+                    <tr>
+                        <th>Tareekh</th>
+                        <th>Tafseel</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="txnTableBody"></tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Apni Supabase keys config.js me dalein -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

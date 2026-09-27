@@ -1,0 +1,203 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f2f4f7;
+    color: #1f2937;
+}
+
+.app-header {
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.total-due-box {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 16px;
+}
+
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 1.15rem;
+    color: #0f766e;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    align-items: center;
+}
+
+input,
+select {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+button {
+    padding: 10px 14px;
+    background: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #0f766e;
+}
+
+.secondary-btn {
+    background: #6b7280;
+}
+
+.secondary-btn:hover {
+    background: #4b5563;
+}
+
+.customer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.customer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.customer-item:hover {
+    background: #f0fdfa;
+}
+
+.customer-item .name {
+    font-weight: 600;
+}
+
+.customer-item .phone {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.customer-item .due {
+    font-weight: bold;
+    color: #dc2626;
+}
+
+.customer-item .due.zero {
+    color: #16a34a;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.khata-summary {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    font-weight: 600;
+}
+
+.khata-summary .balance {
+    color: #dc2626;
+    font-size: 1.1rem;
+}
+
+.txn-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.9rem;
+}
+
+.txn-table th,
+.txn-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.txn-table th {
+    background: #f9fafb;
+}
+
+.txn-table .credit-row {
+    color: #16a34a;
+}
+
+.txn-table .debit-row {
+    color: #dc2626;
+}
+
+.delete-link {
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    z-index: 50;
+}
