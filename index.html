@@ -10,82 +10,106 @@
 
 <body>
 
-    <header class="app-header">
-        <h1>🛒 Karana Shop – Khata App</h1>
-        <div id="totalDueBox" class="total-due-box">
-            Total Udhaar: <span id="totalDueAmount">0</span> Rs
+    <!-- ================= LICENSE LOCK SCREEN ================= -->
+    <div id="licenseOverlay" class="license-overlay">
+        <div class="license-box">
+            <h2>🔒 License Required</h2>
+            <p>Ye app chalane ke liye apni valid License Key dalein.</p>
+            <form id="licenseForm">
+                <input type="text" id="licenseInput" placeholder="License Key (e.g. SHOP-2026-XXXX)" required />
+                <button type="submit">Activate</button>
+            </form>
+            <p id="licenseError" class="license-error hidden">Invalid ya expired license key.</p>
+            <p id="licenseChecking" class="license-checking hidden">Checking license...</p>
         </div>
-    </header>
+    </div>
 
-    <main class="container">
+    <!-- ================= MAIN APP (license verify hone tak hidden) ================= -->
+    <div id="appRoot" class="hidden">
 
-        <!-- ================= ADD CUSTOMER ================= -->
-        <section class="card">
-            <h2>➕ Naya Customer Add Karein</h2>
-            <form id="customerForm" class="grid-form">
-                <input type="text" id="custName" placeholder="Customer ka Naam" required />
-                <input type="text" id="custPhone" placeholder="Phone Number" />
-                <input type="text" id="custAddress" placeholder="Address (optional)" />
-                <button type="submit">Save Customer</button>
-            </form>
-        </section>
-
-        <!-- ================= CUSTOMER LIST ================= -->
-        <section class="card">
-            <div class="section-head">
-                <h2>👥 Customers</h2>
-                <input type="text" id="searchCustomer" placeholder="🔍 Naam ya Phone se search karein" />
+        <header class="app-header">
+            <h1>🛒 Karana Shop – Khata App</h1>
+            <div id="totalDueBox" class="total-due-box">
+                Total Udhaar: <span id="totalDueAmount">0</span> Rs
             </div>
-            <div id="customerList" class="customer-list">
-                <!-- customers yahan JS se load honge -->
-            </div>
-        </section>
+        </header>
 
-        <!-- ================= CUSTOMER DETAIL / KHATA ================= -->
-        <section class="card hidden" id="khataSection">
-            <div class="section-head">
-                <h2 id="khataCustomerName">Khata</h2>
-                <button id="backBtn" class="secondary-btn">⬅ Wapas List</button>
-            </div>
+        <main class="container">
 
-            <div class="khata-summary">
-                <div>Total Udhaar (Liya): <span id="sumDebit">0</span> Rs</div>
-                <div>Total Wapas (Diya): <span id="sumCredit">0</span> Rs</div>
-                <div class="balance">Baqaya Amount: <span id="sumBalance">0</span> Rs</div>
-            </div>
+            <!-- ================= ADD CUSTOMER ================= -->
+            <section class="card">
+                <h2>➕ Naya Customer Add Karein</h2>
+                <form id="customerForm" class="grid-form">
+                    <input type="text" id="custName" placeholder="Customer ka Naam" required />
+                    <input type="text" id="custPhone" placeholder="Phone Number" />
+                    <input type="text" id="custAddress" placeholder="Address (optional)" />
+                    <button type="submit">Save Customer</button>
+                </form>
+            </section>
 
-            <!-- Add item / transaction -->
-            <form id="transactionForm" class="grid-form">
-                <select id="transType">
-                    <option value="debit">Udhaar Diya (Item / Saman)</option>
-                    <option value="credit">Payment Wasool Hui</option>
-                </select>
-                <input type="text" id="itemName" placeholder="Item ka Naam (e.g. Chawal, Atta)" />
-                <input type="number" id="itemQty" placeholder="Quantity" value="1" min="0" step="0.01" />
-                <input type="number" id="itemPrice" placeholder="Price (per unit / total)" required min="0"
-                    step="0.01" />
-                <input type="text" id="itemNote" placeholder="Note (optional)" />
-                <button type="submit">Add Entry</button>
-            </form>
+            <!-- ================= CUSTOMER LIST ================= -->
+            <section class="card">
+                <div class="section-head">
+                    <h2>👥 Customers</h2>
+                    <input type="text" id="searchCustomer" placeholder="🔍 Naam ya Phone se search karein" />
+                </div>
+                <div id="customerList" class="customer-list">
+                    <!-- customers yahan JS se load honge -->
+                </div>
+            </section>
 
-            <h3>📜 Transaction History</h3>
-            <table class="txn-table">
-                <thead>
-                    <tr>
-                        <th>Tareekh</th>
-                        <th>Tafseel</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Type</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="txnTableBody"></tbody>
-            </table>
-        </section>
+            <!-- ================= CUSTOMER DETAIL / KHATA ================= -->
+            <section class="card hidden" id="khataSection">
+                <div class="section-head">
+                    <h2 id="khataCustomerName">Khata</h2>
+                    <button id="backBtn" class="secondary-btn">⬅ Wapas List</button>
+                </div>
 
-    </main>
+                <div class="khata-summary">
+                    <div>Total Udhaar (Liya): <span id="sumDebit">0</span> Rs</div>
+                    <div>Total Wapas (Diya): <span id="sumCredit">0</span> Rs</div>
+                    <div class="balance">Baqaya Amount: <span id="sumBalance">0</span> Rs</div>
+                </div>
+
+                <!-- Add item / transaction -->
+                <form id="transactionForm" class="grid-form">
+                    <select id="transType">
+                        <option value="debit">Udhaar Diya (Item / Saman)</option>
+                        <option value="credit">Payment Wasool Hui</option>
+                    </select>
+                    <input type="text" id="itemName" placeholder="Item ka Naam (e.g. Chawal, Atta)" />
+                    <input type="number" id="itemQty" placeholder="Quantity" value="1" min="0" step="0.01" />
+                    <input type="number" id="itemPrice" placeholder="Price (per unit / total)" required min="0"
+                        step="0.01" />
+                    <input type="text" id="itemNote" placeholder="Note (optional)" />
+                    <label class="date-label">
+                        Expiry Date (optional)
+                        <input type="date" id="itemExpiry" />
+                    </label>
+                    <button type="submit">Add Entry</button>
+                </form>
+
+                <h3>📜 Transaction History</h3>
+                <table class="txn-table">
+                    <thead>
+                        <tr>
+                            <th>Tareekh</th>
+                            <th>Tafseel</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Type</th>
+                            <th>Expiry</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="txnTableBody"></tbody>
+                </table>
+            </section>
+
+        </main>
+
+    </div> <!-- /appRoot -->
 
     <div id="toast" class="toast hidden"></div>
 
@@ -94,6 +118,8 @@
     <!-- Apni Supabase keys config.js me dalein -->
     <script src="config.js"></script>
     <script src="script.js"></script>
+    <!-- license.js sab se aakhir me, kyunki ye script.js ke functions use karta hai -->
+    <script src="license.js"></script>
 </body>
 
 </html>

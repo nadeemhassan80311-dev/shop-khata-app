@@ -141,6 +141,28 @@ button:hover {
     color: #16a34a;
 }
 
+.customer-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.delete-customer-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.delete-customer-btn:hover {
+    background: #dc2626;
+    color: white;
+}
+
 .hidden {
     display: none !important;
 }
@@ -190,6 +212,33 @@ button:hover {
     font-size: 0.85rem;
 }
 
+.date-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.expiry-badge {
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.expiry-badge.near-expiry {
+    background: #fef3c7;
+    color: #b45309;
+    font-weight: 600;
+}
+
+.expiry-badge.expired {
+    background: #fee2e2;
+    color: #dc2626;
+    font-weight: 700;
+}
+
 .toast {
     position: fixed;
     bottom: 20px;
@@ -200,4 +249,53 @@ button:hover {
     padding: 10px 20px;
     border-radius: 8px;
     z-index: 50;
+}
+
+/* ================= License Lock Screen ================= */
+.license-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+}
+
+.license-box {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.license-box h2 {
+    margin-top: 0;
+    color: #0f766e;
+}
+
+.license-box p {
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.license-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.license-error {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.license-checking {
+    color: #0d9488;
+    font-weight: 600;
 }

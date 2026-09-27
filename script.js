@@ -7,222 +7,287 @@ let currentCustomer = null;
 
 // ---------- Helpers ----------
 function showToast(msg) {
-  const toast = document.getElementById("toast");
-  toast.textContent = msg;
-  toast.classList.remove("hidden");
-  setTimeout(() => toast.classList.add("hidden"), 2200);
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.remove("hidden");
+    setTimeout(() => toast.classList.add("hidden"), 2200);
 }
 
 function formatMoney(n) {
-  return Number(n || 0).toLocaleString("en-PK");
+    return Number(n || 0).toLocaleString("en-PK");
 }
 
 // ---------- Load Customers ----------
 async function loadCustomers() {
-  const { data, error } = await supabaseClient
-    .from("customers")
-    .select("*, transactions(*)")
-    .order("created_at", { ascending: false });
+    const { data, error } = await supabaseClient
+        .from("customers")
+        .select("*, transactions(*)")
+        .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    showToast("Customers load karne me masla hua");
-    return;
-  }
+    if (error) {
+        console.error(error);
+        showToast("Customers load karne me masla hua");
+        return;
+    }
 
-  allCustomers = data || [];
-  renderCustomerList(allCustomers);
-  renderTotalDue();
+    allCustomers = data || [];
+    renderCustomerList(allCustomers);
+    renderTotalDue();
 }
 
 function calcCustomerBalance(customer) {
-  const txns = customer.transactions || [];
-  let debit = 0, credit = 0;
-  txns.forEach(t => {
-    const total = Number(t.total || (t.quantity * t.price) || t.price || 0);
-    if (t.type === "credit") credit += total;
-    else debit += total;
-  });
-  return { debit, credit, balance: debit - credit };
+    const txns = customer.transactions || [];
+    let debit = 0, credit = 0;
+    txns.forEach(t => {
+        const total = Number(t.total || (t.quantity * t.price) || t.price || 0);
+        if (t.type === "credit") credit += total;
+        else debit += total;
+    });
+    return { debit, credit, balance: debit - credit };
 }
 
 function renderTotalDue() {
-  let total = 0;
-  allCustomers.forEach(c => {
-    total += calcCustomerBalance(c).balance;
-  });
-  document.getElementById("totalDueAmount").textContent = formatMoney(total);
+    let total = 0;
+    allCustomers.forEach(c => {
+        total += calcCustomerBalance(c).balance;
+    });
+    document.getElementById("totalDueAmount").textContent = formatMoney(total);
 }
 
 function renderCustomerList(list) {
-  const container = document.getElementById("customerList");
-  container.innerHTML = "";
+    const container = document.getElementById("customerList");
+    container.innerHTML = "";
 
-  if (list.length === 0) {
-    container.innerHTML = "<p>Koi customer nahi mila.</p>";
-    return;
-  }
+    if (list.length === 0) {
+        container.innerHTML = "<p>Koi customer nahi mila.</p>";
+        return;
+    }
 
-  list.forEach(c => {
-    const { balance } = calcCustomerBalance(c);
-    const div = document.createElement("div");
-    div.className = "customer-item";
-    div.innerHTML = `
-      <div>
+    list.forEach(c => {
+        const { balance } = calcCustomerBalance(c);
+        const div = document.createElement("div");
+        div.className = "customer-item";
+        div.innerHTML = `
+      <div class="customer-info">
         <div class="name">${c.name}</div>
         <div class="phone">${c.phone || ""}</div>
       </div>
-      <div class="due ${balance <= 0 ? "zero" : ""}">${formatMoney(balance)} Rs</div>
+      <div class="customer-right">
+        <div class="due ${balance <= 0 ? "zero" : ""}">${formatMoney(balance)} Rs</div>
+        <button type="button" class="delete-customer-btn" data-id="${c.id}" data-name="${c.name}">🗑 Delete</button>
+      </div>
     `;
-    div.addEventListener("click", () => openKhata(c.id));
-    container.appendChild(div);
-  });
+        // Poora card click karne se khata khulta hai
+        div.addEventListener("click", () => openKhata(c.id));
+        container.appendChild(div);
+    });
+
+    // Delete button par click alag se handle karein taake card click (openKhata) na chale
+    container.querySelectorAll(".delete-customer-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            deleteCustomer(btn.dataset.id, btn.dataset.name);
+        });
+    });
+}
+
+// ---------- Delete Customer ----------
+async function deleteCustomer(id, name) {
+    const sure = confirm(`Kya aap "${name}" ko delete karna chahte hain?\nIska pura khata (saari entries) bhi delete ho jayega. Ye wapas nahi ho sakta.`);
+    if (!sure) return;
+
+    // transactions table me customer_id par "on delete cascade" laga hua hai,
+    // isliye customer delete hote hi uski saari transactions bhi khud delete ho jayengi.
+    const { error } = await supabaseClient.from("customers").delete().eq("id", id);
+
+    if (error) {
+        console.error(error);
+        showToast("Customer delete nahi hua");
+        return;
+    }
+
+    // Agar isi customer ka khata khula hua tha to usay band kar dein
+    if (currentCustomer && currentCustomer.id === id) {
+        document.getElementById("khataSection").classList.add("hidden");
+        currentCustomer = null;
+    }
+
+    showToast("Customer delete ho gaya");
+    loadCustomers();
 }
 
 // ---------- Add Customer ----------
 document.getElementById("customerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const name = document.getElementById("custName").value.trim();
-  const phone = document.getElementById("custPhone").value.trim();
-  const address = document.getElementById("custAddress").value.trim();
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+    const address = document.getElementById("custAddress").value.trim();
 
-  if (!name) return;
+    if (!name) return;
 
-  const { error } = await supabaseClient.from("customers").insert([
-    { name, phone, address }
-  ]);
+    const { error } = await supabaseClient.from("customers").insert([
+        { name, phone, address }
+    ]);
 
-  if (error) {
-    console.error(error);
-    showToast("Customer add nahi hua");
-    return;
-  }
+    if (error) {
+        console.error(error);
+        showToast("Customer add nahi hua");
+        return;
+    }
 
-  document.getElementById("customerForm").reset();
-  showToast("Customer add ho gaya");
-  loadCustomers();
+    document.getElementById("customerForm").reset();
+    showToast("Customer add ho gaya");
+    loadCustomers();
 });
 
 // ---------- Search ----------
 document.getElementById("searchCustomer").addEventListener("input", (e) => {
-  const q = e.target.value.toLowerCase().trim();
-  const filtered = allCustomers.filter(
-    c =>
-      c.name.toLowerCase().includes(q) ||
-      (c.phone || "").toLowerCase().includes(q)
-  );
-  renderCustomerList(filtered);
+    const q = e.target.value.toLowerCase().trim();
+    const filtered = allCustomers.filter(
+        c =>
+            c.name.toLowerCase().includes(q) ||
+            (c.phone || "").toLowerCase().includes(q)
+    );
+    renderCustomerList(filtered);
 });
 
 // ---------- Open Khata (Customer Detail) ----------
 async function openKhata(customerId) {
-  const customer = allCustomers.find(c => c.id === customerId);
-  if (!customer) return;
+    const customer = allCustomers.find(c => c.id === customerId);
+    if (!customer) return;
 
-  currentCustomer = customer;
+    currentCustomer = customer;
 
-  document.getElementById("khataSection").classList.remove("hidden");
-  document.getElementById("khataCustomerName").textContent = `📒 ${customer.name} ka Khata`;
+    document.getElementById("khataSection").classList.remove("hidden");
+    document.getElementById("khataCustomerName").textContent = `📒 ${customer.name} ka Khata`;
 
-  renderKhataDetail();
-  window.scrollTo({ top: document.getElementById("khataSection").offsetTop - 10, behavior: "smooth" });
+    renderKhataDetail();
+    window.scrollTo({ top: document.getElementById("khataSection").offsetTop - 10, behavior: "smooth" });
 }
 
 function renderKhataDetail() {
-  const { debit, credit, balance } = calcCustomerBalance(currentCustomer);
-  document.getElementById("sumDebit").textContent = formatMoney(debit);
-  document.getElementById("sumCredit").textContent = formatMoney(credit);
-  document.getElementById("sumBalance").textContent = formatMoney(balance);
+    const { debit, credit, balance } = calcCustomerBalance(currentCustomer);
+    document.getElementById("sumDebit").textContent = formatMoney(debit);
+    document.getElementById("sumCredit").textContent = formatMoney(credit);
+    document.getElementById("sumBalance").textContent = formatMoney(balance);
 
-  const tbody = document.getElementById("txnTableBody");
-  tbody.innerHTML = "";
+    const tbody = document.getElementById("txnTableBody");
+    tbody.innerHTML = "";
 
-  const txns = (currentCustomer.transactions || []).slice().sort(
-    (a, b) => new Date(b.created_at) - new Date(a.created_at)
-  );
+    const txns = (currentCustomer.transactions || []).slice().sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
 
-  txns.forEach(t => {
-    const total = Number(t.total || (t.quantity * t.price) || t.price || 0);
-    const tr = document.createElement("tr");
-    tr.className = t.type === "credit" ? "credit-row" : "debit-row";
-    tr.innerHTML = `
+    txns.forEach(t => {
+        const total = Number(t.total || (t.quantity * t.price) || t.price || 0);
+        const tr = document.createElement("tr");
+        tr.className = t.type === "credit" ? "credit-row" : "debit-row";
+
+        const expiryInfo = getExpiryInfo(t.expiry_date);
+
+        tr.innerHTML = `
       <td>${new Date(t.created_at).toLocaleDateString("en-GB")}</td>
       <td>${t.item_name || t.note || "-"}</td>
       <td>${t.quantity ?? "-"}</td>
       <td>${formatMoney(t.price)}</td>
       <td>${formatMoney(total)}</td>
       <td>${t.type === "credit" ? "Payment" : "Udhaar"}</td>
+      <td><span class="expiry-badge ${expiryInfo.className}">${expiryInfo.label}</span></td>
       <td><span class="delete-link" data-id="${t.id}">Delete</span></td>
     `;
-    tbody.appendChild(tr);
-  });
+        tbody.appendChild(tr);
+    });
 
-  tbody.querySelectorAll(".delete-link").forEach(el => {
-    el.addEventListener("click", () => deleteTransaction(el.dataset.id));
-  });
+    tbody.querySelectorAll(".delete-link").forEach(el => {
+        el.addEventListener("click", () => deleteTransaction(el.dataset.id));
+    });
+}
+
+// Expiry date ke hisab se label/color decide karta hai
+function getExpiryInfo(expiry_date) {
+    if (!expiry_date) return { label: "-", className: "" };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(expiry_date);
+    const diffDays = Math.round((expiry - today) / (1000 * 60 * 60 * 24));
+
+    const dateStr = expiry.toLocaleDateString("en-GB");
+
+    if (diffDays < 0) {
+        return { label: `${dateStr} (Expired)`, className: "expired" };
+    }
+    if (diffDays <= 7) {
+        return { label: `${dateStr} (${diffDays}d left)`, className: "near-expiry" };
+    }
+    return { label: dateStr, className: "" };
 }
 
 // ---------- Add Transaction ----------
 document.getElementById("transactionForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!currentCustomer) return;
+    e.preventDefault();
+    if (!currentCustomer) return;
 
-  const type = document.getElementById("transType").value;
-  const item_name = document.getElementById("itemName").value.trim();
-  const quantity = parseFloat(document.getElementById("itemQty").value) || 1;
-  const price = parseFloat(document.getElementById("itemPrice").value);
-  const note = document.getElementById("itemNote").value.trim();
+    const type = document.getElementById("transType").value;
+    const item_name = document.getElementById("itemName").value.trim();
+    const quantity = parseFloat(document.getElementById("itemQty").value) || 1;
+    const price = parseFloat(document.getElementById("itemPrice").value);
+    const note = document.getElementById("itemNote").value.trim();
+    const expiry_date = document.getElementById("itemExpiry").value || null;
 
-  if (isNaN(price)) return;
+    if (isNaN(price)) return;
 
-  const { error } = await supabaseClient.from("transactions").insert([
-    {
-      customer_id: currentCustomer.id,
-      item_name: item_name || (type === "credit" ? "Payment" : "Item"),
-      quantity,
-      price,
-      type,
-      note
+    const { error } = await supabaseClient.from("transactions").insert([
+        {
+            customer_id: currentCustomer.id,
+            item_name: item_name || (type === "credit" ? "Payment" : "Item"),
+            quantity,
+            price,
+            type,
+            note,
+            expiry_date
+        }
+    ]);
+
+    if (error) {
+        console.error(error);
+        showToast("Entry add nahi hui");
+        return;
     }
-  ]);
 
-  if (error) {
-    console.error(error);
-    showToast("Entry add nahi hui");
-    return;
-  }
-
-  document.getElementById("transactionForm").reset();
-  document.getElementById("itemQty").value = 1;
-  showToast("Entry add ho gayi");
-  await loadCustomers();
-  currentCustomer = allCustomers.find(c => c.id === currentCustomer.id);
-  renderKhataDetail();
+    document.getElementById("transactionForm").reset();
+    document.getElementById("itemQty").value = 1;
+    document.getElementById("itemExpiry").value = "";
+    showToast("Entry add ho gayi");
+    await loadCustomers();
+    currentCustomer = allCustomers.find(c => c.id === currentCustomer.id);
+    renderKhataDetail();
 });
 
 // ---------- Delete Transaction ----------
 async function deleteTransaction(id) {
-  if (!confirm("Ye entry delete karni hai?")) return;
+    if (!confirm("Ye entry delete karni hai?")) return;
 
-  const { error } = await supabaseClient.from("transactions").delete().eq("id", id);
-  if (error) {
-    console.error(error);
-    showToast("Delete nahi hua");
-    return;
-  }
+    const { error } = await supabaseClient.from("transactions").delete().eq("id", id);
+    if (error) {
+        console.error(error);
+        showToast("Delete nahi hua");
+        return;
+    }
 
-  showToast("Entry delete ho gayi");
-  await loadCustomers();
-  currentCustomer = allCustomers.find(c => c.id === currentCustomer.id);
-  renderKhataDetail();
+    showToast("Entry delete ho gayi");
+    await loadCustomers();
+    currentCustomer = allCustomers.find(c => c.id === currentCustomer.id);
+    renderKhataDetail();
 }
 
 // ---------- Back Button ----------
 document.getElementById("backBtn").addEventListener("click", () => {
-  document.getElementById("khataSection").classList.add("hidden");
-  currentCustomer = null;
+    document.getElementById("khataSection").classList.add("hidden");
+    currentCustomer = null;
 });
 
 // ---------- Init ----------
-loadCustomers();
+// Note: loadCustomers() ab yahan se nahi, license.js se
+// (license valid hone ke baad) call hota hai.
